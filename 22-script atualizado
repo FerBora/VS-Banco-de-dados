@@ -1,0 +1,78 @@
+-- Apaga e recria o banco de dados
+DROP DATABASE IF EXISTS teste;
+CREATE DATABASE teste;
+USE teste;
+
+-- Cria a tabela de clientes
+CREATE TABLE customers (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(60),
+    last_name VARCHAR(60),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    email VARCHAR(256),
+    age INT DEFAULT 0
+);
+
+-- Cria a tabela de pedidos
+CREATE TABLE orders (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    amount NUMERIC(7,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+-- Cria a stored procedure para gerar dados aleatórios
+DELIMITER $$
+
+CREATE PROCEDURE generate_random_customers()
+BEGIN
+    DECLARE i INT DEFAULT 0;
+    DECLARE j INT;
+    DECLARE random_age INT;
+    DECLARE random_orders INT;
+    DECLARE inserted_customer_id INT;
+    DECLARE fname VARCHAR(60);
+    DECLARE lname VARCHAR(60);
+    DECLARE email VARCHAR(256);
+
+    WHILE i < 20 DO
+        -- Gera nomes aleatórios
+        SET fname = ELT(FLOOR(1 + RAND() * 20),
+            'Lucas','Ana','João','Maria','Pedro','Clara','Carlos','Paula','Rafael','Sofia',
+            'Felipe','Larissa','Marcos','Juliana','Thiago','Amanda','Fernando','Isabela','Bruno','Camila');
+        SET lname = ELT(FLOOR(1 + RAND() * 10),
+            'Silva','Souza','Oliveira','Pereira','Lima','Gomes','Ribeiro','Martins','Almeida','Barbosa');
+
+        -- Gera email e idade aleatória
+        SET email = CONCAT(LOWER(fname), '.', LOWER(lname), i, '@mail.com');
+        SET random_age = FLOOR(18 + (RAND() * 42)); -- idade entre 18 e 60
+
+        -- Insere cliente
+        INSERT INTO customers (first_name, last_name, email, age)
+        VALUES (fname, lname, email, random_age);
+
+        -- Armazena o ID do cliente inserido
+        SET inserted_customer_id = LAST_INSERT_ID();
+
+        -- Sorteia quantos pedidos esse cliente vai ter (0 a 3)
+        SET random_orders = FLOOR(RAND() * 4);
+        SET j = 0;
+
+        WHILE j < random_orders DO
+            INSERT INTO orders (customer_id, amount)
+            VALUES (inserted_customer_id, ROUND(RAND() * 1000, 2));
+            SET j = j + 1;
+        END WHILE;
+
+        SET i = i + 1;
+    END WHILE;
+END$$
+
+DELIMITER ;
+
+-- Executa a procedure para gerar os dados
+CALL generate_random_customers();
+
+SELECT * FROM customers;
+SELECT * FROM orders;
