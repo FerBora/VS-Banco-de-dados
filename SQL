@@ -1,0 +1,14 @@
+Atividades\00-create-database.sql
+Atividades\01-create-table.sql
+Atividades\02-alter-table.sql
+Atividades\03-insert.sql
+Atividades\04-contatos.sql
+Atividades\05-medicos.sql
+Atividades\06-select-parte1.sql
+Atividades\06-select1.sql
+Atividades\07-select2.sql
+Atividades\08-select2.sql
+Atividades\09-select3.sql
+Atividades\10-select4.sql
+Atividades\11-update.sql
+Atividades\12-delete.sql
